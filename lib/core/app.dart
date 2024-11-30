@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'bootstrapper.dart';
 
@@ -33,7 +34,7 @@ class _AppState extends State<App> {
         Widget result;
         switch (snapshot.data) {
           case InitializationStatus.initialized:
-            result = MultiProvider(
+            result = MultiBlocProvider(
               providers: [],
               child: const MaterialApp(
                 home: LoginPagePage(),
