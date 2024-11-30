@@ -1,16 +1,16 @@
 # skuadchallengue
 
-A new Flutter project.
+    Steps to run the project
+ 
+  1.- Clone the project
+  2.- Run the command "flutter pub get"
+  3.- Run the command "flutter run --target=lib/main.dart"
+  
 
-## Getting Started
+    Decisions made
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+   1.- The project was created with the command "flutter create skuadchallengue"
+   2.- The project is divided into modules, each module is a feature of the project
+   3.- Each module is with clean arquitecture
+   4.- Some tests are included, for widget tests , bloc test , repository test and use cases test
+   
