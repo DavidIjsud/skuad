@@ -17,15 +17,19 @@ class GetArticlesUseCaseImpl implements GetArticlesUseCase {
   @override
   Future<List<Article>> getArticles() async {
     final result = await _homeRepository.getArticles();
-
-    //TODO: when fail retrieve articles from secure storage
-    return result.fold(
-        (l) => [], (articles) => sortArticlesByCreatedAtDate(articles));
+    return await result.fold((l) async {
+      return sortArticlesByCreatedAtDate(
+        await _secureStorage.getListOfArticlesOnStorage(),
+      );
+    }, (articles) async {
+      await _secureStorage.saveListOfArticlesOnStorage(articles);
+      return sortArticlesByCreatedAtDate(articles);
+    });
   }
 
   @override
   List<Article> sortArticlesByCreatedAtDate(List<Article> articles) {
-    //TODO: implement sortArticlesByCreatedAtDate
+    articles.sort((a, b) => b.createdAt.compareTo(a.createdAt));
     return articles;
   }
 }

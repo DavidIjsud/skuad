@@ -7,26 +7,58 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:skuadchallengue/core/app.dart';
-import 'package:skuadchallengue/core/bootstrapper.dart';
-import 'package:skuadchallengue/core/flavor.dart';
+import 'package:skuadchallengue/modules/home/presentation/page/widgets/article_item.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester
-        .pumpWidget(App(bootstrapper: Bootstrapper.fromFlavor(Flavor.dev)));
+  group('ArticleItem Widget Tests', () {
+    testWidgets('displays correct story title, author, and date',
+        (WidgetTester tester) async {
+      const storyTitle = 'Test Story Title';
+      const author = 'Test Author';
+      final createdAt = DateTime(2024, 11, 15);
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ArticleItem(
+              storyTitle: storyTitle,
+              author: author,
+              createdAt: createdAt,
+            ),
+          ),
+        ),
+      );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      expect(find.text(storyTitle), findsOneWidget); // Check for the title
+      expect(find.text('By $author'), findsOneWidget); // Check for the author
+      expect(find.text('15/11/2024'),
+          findsOneWidget); // Check for the formatted date
+    });
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    testWidgets('truncates long story titles', (WidgetTester tester) async {
+      const longStoryTitle =
+          'This is a very long story title that should be truncated after two lines';
+      const author = 'Test Author';
+      final createdAt = DateTime(2024, 11, 15);
+
+      // Act
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: ArticleItem(
+              storyTitle: longStoryTitle,
+              author: author,
+              createdAt: createdAt,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.textContaining(longStoryTitle), findsOneWidget);
+      expect(
+        tester.getSize(find.text(longStoryTitle)).height,
+        lessThan(100),
+      );
+    });
   });
 }

@@ -4,7 +4,16 @@ import 'dart:developer';
 
 import 'package:flutter/services.dart';
 import 'package:skuadchallengue/core/endpoints.dart';
+import 'package:skuadchallengue/modules/home/data/repositories/home_repository.dart';
+import 'package:skuadchallengue/modules/home/data/repositories/home_repository.impl.dart';
+import 'package:skuadchallengue/modules/home/domain/use_cases/get_articles_use_case.impl.dart';
+import 'package:skuadchallengue/modules/home/presentation/bloc/home_bloc.dart';
+import 'package:skuadchallengue/services/network/network_client.dart';
+import 'package:skuadchallengue/services/network/network_client.impl.dart';
+import 'package:skuadchallengue/services/storage/secure_storage.dart';
+import 'package:skuadchallengue/services/storage/secure_storage.impl.dart';
 
+import '../modules/home/domain/use_cases/get_articles.usecase.dart';
 import 'flavor.dart';
 
 enum InitializationStatus {
@@ -31,10 +40,12 @@ abstract class Bootstrapper {
   }
 
   Stream<InitializationStatus> get initializationStream;
+  HomeBloc get homeBloc;
 
   Future<void> _initializeBlocs();
   Future<void> _initializeRepositories();
   Future<void> _initExtraServices();
+  Future<void> _initializeUsesCases();
   Future<void> bootstrap();
   void dispose();
 }
@@ -47,16 +58,29 @@ class _DefaultBootstrapper implements Bootstrapper {
       InitializationStatus.initializing;
   final StreamController<InitializationStatus> _initializationStreamController =
       StreamController<InitializationStatus>.broadcast();
-  //view Models
+  //blocs
+  late HomeBloc _homeBloc;
   //repository
+  late HomeRepository _homeRepository;
+  //use cases
+  late GetArticlesUseCase _getArticlesUseCase;
   //extra services
   late Endpoints _endpoints;
+  late NetworkClient _networkClient;
+  late SecureStorage _secureStorage;
 
   @override
-  Future<void> _initializeBlocs() async {}
+  Future<void> _initializeBlocs() async {
+    _homeBloc = HomeBloc(getArticlesUseCase: _getArticlesUseCase);
+  }
 
   @override
-  Future<void> _initializeRepositories() async {}
+  Future<void> _initializeRepositories() async {
+    _homeRepository = HomeRepositoryImpl(
+      networkClient: _networkClient,
+      endpoints: _endpoints,
+    );
+  }
 
   Future<void> _loadEndPointsFromRootBundle() async {
     final configJson = await rootBundle.loadString(_flavor.configFile);
@@ -66,6 +90,14 @@ class _DefaultBootstrapper implements Bootstrapper {
   @override
   Future<void> _initExtraServices() async {
     await _loadEndPointsFromRootBundle();
+    _networkClient = NetworkClientImpl();
+    _secureStorage = SecureStorageImpl();
+  }
+
+  @override
+  Future<void> _initializeUsesCases() async {
+    _getArticlesUseCase = GetArticlesUseCaseImpl(
+        homeRepository: _homeRepository, secureStorage: _secureStorage);
   }
 
   @override
@@ -75,6 +107,7 @@ class _DefaultBootstrapper implements Bootstrapper {
         log('Starting bootstrap process...');
         await _initExtraServices();
         await _initializeRepositories();
+        await _initializeUsesCases();
         await _initializeBlocs();
         _initializationStatus = InitializationStatus.initialized;
         log('Bootstrap process completed successfully.');
@@ -90,6 +123,9 @@ class _DefaultBootstrapper implements Bootstrapper {
   @override
   Stream<InitializationStatus> get initializationStream =>
       _initializationStreamController.stream;
+
+  @override
+  HomeBloc get homeBloc => _homeBloc;
 
   @override
   void dispose() {}

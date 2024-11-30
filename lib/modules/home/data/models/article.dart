@@ -10,8 +10,17 @@ class Article {
   });
 
   factory Article.fromJson(Map<String, dynamic> json) => Article(
-        author: json["author"],
-        createdAt: DateTime.parse(json["created_at"]),
-        storyTitle: json["story_title"],
+        author: json["author"] ?? "",
+        createdAt: json["created_at"] != null
+            ? DateTime.tryParse(json["created_at"]) ?? DateTime.now()
+            : DateTime.now(),
+        storyTitle: json["story_title"] ?? "",
       );
+
+  //to json method
+  Map<String, dynamic> toJson() => {
+        "author": author,
+        "created_at": createdAt.toIso8601String(),
+        "story_title": storyTitle,
+      };
 }

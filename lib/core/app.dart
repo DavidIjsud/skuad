@@ -1,6 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:skuadchallengue/modules/home/presentation/bloc/home_bloc.dart';
+import 'package:skuadchallengue/modules/home/presentation/page/home_page.dart';
 
 import 'bootstrapper.dart';
 
@@ -35,9 +37,13 @@ class _AppState extends State<App> {
         switch (snapshot.data) {
           case InitializationStatus.initialized:
             result = MultiBlocProvider(
-              providers: [],
+              providers: [
+                BlocProvider<HomeBloc>(
+                  create: (_) => widget.bootstrapper.homeBloc,
+                )
+              ],
               child: const MaterialApp(
-                home: LoginPagePage(),
+                home: HomePage(),
               ),
             );
             break;

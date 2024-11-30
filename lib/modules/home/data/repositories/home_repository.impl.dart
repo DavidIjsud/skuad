@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:dartz/dartz.dart';
 import 'package:skuadchallengue/app/models/request_article_request.dart';
@@ -20,7 +21,9 @@ class HomeRepositoryImpl implements HomeRepository {
 
   @override
   Future<Either<Fail, List<Article>>> getArticles() async {
-    final request = GetArticlesRequest(url: _endpoints.removeClientEndPoint);
+    final request = GetArticlesRequest(
+      url: _endpoints.articlesEndpoint,
+    );
 
     try {
       final response = await _networkClient.get(
@@ -28,12 +31,11 @@ class HomeRepositoryImpl implements HomeRepository {
         headersParam: request.headers,
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == HttpStatus.ok) {
         final body = json.decode(response.body) as Map<String, dynamic>;
         final articles = List<Article>.from(
           body['hits'].map(
-            (article) => Article.fromJson(
-                article['_highlightResult'] as Map<String, dynamic>),
+            (article) => Article.fromJson(article),
           ),
         );
         return right(articles);
