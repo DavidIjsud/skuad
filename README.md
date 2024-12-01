@@ -4,7 +4,7 @@
 
 1. Clone the project
 2. Run the command `flutter pub get`
-3. Run the command `flutter run --target=lib/main.dart`
+3. Run the command `flutter run --target=lib/main_dev.dart`
 
 ## Decisions made
 
